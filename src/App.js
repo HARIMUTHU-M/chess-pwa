@@ -30,14 +30,14 @@ function App() {
     const keys = Object.keys(boardArray)
   return (  
     // <Board boardArray={boardArray} />
-    <div className=" h-screen text-center -z-50 " style={{backgroundImage:'url("./images/Background.jpg")',backgroundRepeat:'no-repeat',backgroundPosition:'center',backgroundSize:'100% 100%'}} >
+    <div className=" h-screen text-center -z-50 " onClick={console.log(1)} style={{backgroundImage:'url("./images/Background.jpg")',backgroundRepeat:'no-repeat',backgroundPosition:'center',backgroundSize:'100% 100%'}} >
 
       <div className='flex h-full'>
          <div className='basis-1/4 left-bar' >
          </div>
-         <div className='basis-1/2 w-fit px-20   -z-0 '   >
+         <div className='basis-1/2 w-fit px-20   -z-0 '  onClick={console.log(1)} >
           <div className=' w-full h-full pl-[12%] pr-[13%] pt-[5.9rem] py-[15.4rem] ' style={{backgroundImage:'url("./images/chessboard-02.png")',backgroundRepeat:'no-repeat', backgroundPosition:'center' , backgroundSize:'100% 100%'}} >
-            <div className='bg-rd-400 h-[100%]  flex-col  ' >
+            <div className='bg-rd-400 h-[100%]  flex-col  'onClick={console.log(1)}  >
               
                 <Board boardArray={boardArray} ></Board>
               
@@ -57,13 +57,13 @@ const Board = ({boardArray}) => {
   var X = x.map( p =>  {
     var Y = y.map(s => {
       return (
-      <div className='flex-auto relative z-20 ' onClick={console.log(s+p)} >
-        {boardArray[s +p] !==" " && <img src={'./images/'+boardArray[s +p]+'.png'}onClick={console.log(s+p)} className='h-40 top-[-6.5rem] left-[0rem] absolute '/>} 
+      <div  key={s} className='flex-auto relative z-20 ' onClick={()=>console.log(s+p)} >
+        {boardArray[s +p] !==" " && <img key={s+p} src={'./images/'+boardArray[s +p]+'.png'} className='z-10 h-40 top-[-6.5rem] left-[0rem] absolute pointer-events-none '/>} 
       </div>
       )
     })
   return ( 
-       <div className='flex h-[12.5%] relative flex-auto w-full '>{Y}</div>
+       <div key={p} className='flex h-[12.5%] relative flex-auto w-full '>{Y}</div>
     )
   } )
   console.log("x is ",x)
