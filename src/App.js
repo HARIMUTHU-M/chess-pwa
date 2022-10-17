@@ -57,7 +57,8 @@ function App() {
   const [fromPosition, setfromPosition] = useState("");
 
   const tempFn = (x, y) => {
-    if (possibleMoves.length > 0) {
+    if (possibleMoves.length > 0 && possibleMoves.includes(x)) {
+      console.log('possilbe Moves',possibleMoves);
       console.log(fromPosition + " " + x);
       game.move(fromPosition, x);
       console.log(game.exportJson().pieces);
@@ -67,11 +68,14 @@ function App() {
       game.aiMove();
       setCurrBoard();
       setPossibleMoves([...[]]);
-    } else {
+    } else if (possibleMoves.length > 0) {
+      setPossibleMoves([...[]]);
+    } 
+    else {
       console.log(x + " " + y);
       setPossibleMoves([...game.moves(x)]);
       setfromPosition(x);
-      console.log(possibleMoves);
+      console.log('possilbe Moves',possibleMoves);
     }
   };
 
@@ -83,8 +87,8 @@ function App() {
          <div className='basis-1/4 left-bar' >
          </div>
          <div className='basis-1/2 w-fit px-20   -z-0 '  >
-          <div className=' w-full h-full pl-[12%] pr-[13%] pt-[5.9rem] py-[15.4rem] ' style={{backgroundImage:'url("./images/chessboard-02.png")',backgroundRepeat:'no-repeat', backgroundPosition:'center' , backgroundSize:'100% 100%'}} >
-            <div className='bg-rd-400 h-[100%]  flex-col  '  >
+          <div className=' w-[50rem]  pl-[12%] pr-[13%] pt-[5.9rem] py-[15.4rem] ' style={{backgroundImage:'url("./images/chessboard-02.png")',backgroundRepeat:'no-repeat', backgroundPosition:'center' , backgroundSize:'100% 100%'}} >
+            <div className='bg-rd-400 h-[34rem]  flex-col  '  >
                 <Board boardArray2={boardArray2} possibleMoves={possibleMoves} tempFn={tempFn} ></Board>
             </div>
           </div>
@@ -102,8 +106,8 @@ const Board = ({boardArray2,tempFn,possibleMoves}) => {
   var X = x.map( p =>  {
     var Y = y.map(s => {
       return (
-      <div  key={s} className={'flex-auto relative z-20  m-[1px] '+ (possibleMoves.includes(s+p) && "bg-green-500")} onClick={()=> tempFn(s+p, boardArray2[s+p])} >
-        {boardArray2[s +p] !==" " && <img key={s+p} src={'./images/new_images/'+boardArray2[s +p]+'.png'} className='z-10  w-[200%] top-[-2.5rem] left-[0rem] absolute pointer-events-none '/>} 
+      <div  key={s} draggable={false} className={'flex-auto select-none relative z-20  m-[1px] '+ (possibleMoves.includes(s+p) && "bg-[#6f69]")} onClick={()=> tempFn(s+p, boardArray2[s+p])} >
+        {boardArray2[s +p] !==" " && <img key={s+p} draggable={false} src={'./images/new_images/'+boardArray2[s +p]+'.png'} className='z-10 select-none absolute drag pointer-events-none '/>} 
       </div>
       )
     })
