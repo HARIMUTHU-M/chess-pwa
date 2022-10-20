@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { Game } from "js-chess-engine";
+import './App.css'
 
 const game = new Game();
 
 function App() {
   const [boardArray2, setBoardArray2] = useState({});
+  const [difficulty, setDifficulty] = useState(0)
   let keys = Object.keys(boardArray2);
   let board = game.exportJson().pieces;
 
@@ -65,7 +67,7 @@ function App() {
       setCurrBoard();
       console.log("Done");
       setfromPosition("");
-      game.aiMove();
+      game.aiMove(difficulty);
       setCurrBoard();
       setPossibleMoves([...[]]);
     } else if (possibleMoves.length > 0) {
@@ -81,19 +83,35 @@ function App() {
 
 
   return (  
-    <div className=" h-screen text-center -z-50 " style={{backgroundImage:'url("./images/Background.jpg")',backgroundRepeat:'no-repeat',backgroundPosition:'center',backgroundSize:'100% 100%'}} >
-
+    <div className=" h-screen -z-50 " style={{backgroundImage:'url("./images/Background.jpg")',backgroundRepeat:'no-repeat',backgroundPosition:'center',backgroundSize:'100% 100%'}} >
       <div className='flex h-full'>
          <div className='basis-1/4 left-bar' >
          </div>
          <div className='basis-1/2 w-fit px-20   -z-0 '  >
-          <div className=' w-[50rem]  pl-[12%] pr-[13%] pt-[5.9rem] py-[15.4rem] ' style={{backgroundImage:'url("./images/chessboard-02.png")',backgroundRepeat:'no-repeat', backgroundPosition:'center' , backgroundSize:'100% 100%'}} >
-            <div className='bg-rd-400 h-[34rem]  flex-col  '  >
+          <div className=' w-[34rem]  h-[37rem]  pl-[12%] pr-[13%] pt-[4rem] pb-[10.2rem] ' style={{  backgroundImage:'url("./images/chessboard-02.png")',backgroundRepeat:'no-repeat', backgroundPosition:'center' , backgroundSize:'100% 100%'}} >
+            <div className='bg-rd-400 h-[100%]   flex-col  '  >
                 <Board boardArray2={boardArray2} possibleMoves={possibleMoves} tempFn={tempFn} ></Board>
             </div>
           </div>
          </div>
-         <div className='basis-1/4 right-bar' >
+         <div className='my-6  h-[60px] basis-1/2 right-bar' >
+         <div className="flex flex-col justify-center items-start h-[40vh]" style={{background:'transparent url("./images/difficulty-level.png") no-repeat center center',backgroundSize:"cover"}}>
+          <label className="control control-radio">
+            Easy
+            <input onChange={()=>setDifficulty(0)} type="radio" name="radio" />
+            <div className="control_indicator"></div>
+          </label>
+          <label className="control control-radio">
+              Medium
+              <input onChange={()=>setDifficulty(1)} type="radio" name="radio" />
+              <div className="control_indicator"></div>
+          </label>
+          <label className="control control-radio">
+              Hard
+              <input onChange={()=>setDifficulty(2)} type="radio" name="radio" />
+              <div className="control_indicator"></div>
+          </label>
+         </div>
          </div>
       </div>
     </div>
@@ -107,7 +125,7 @@ const Board = ({boardArray2,tempFn,possibleMoves}) => {
     var Y = y.map(s => {
       return (
       <div  key={s} draggable={false} className={'flex-auto select-none relative z-20  m-[1px] '+ (possibleMoves.includes(s+p) && "bg-[#6f69]")} onClick={()=> tempFn(s+p, boardArray2[s+p])} >
-        {boardArray2[s +p] !==" " && <img key={s+p} draggable={false} src={'./images/new_images/'+boardArray2[s +p]+'.png'} className='z-10 select-none absolute drag pointer-events-none '/>} 
+        {boardArray2[s +p] !==" " && <img key={s+p} draggable={false} src={'./images/new_images/'+boardArray2[s +p]+'.png'} className='z-10 select-none top-[-1rem] absolute drag pointer-events-none '/>} 
       </div>
       )
     })
