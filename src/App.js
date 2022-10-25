@@ -123,9 +123,13 @@ const Board = ({boardArray2,tempFn,possibleMoves}) => {
   console.log('board arr',boardArray2)
   var X = x.map( p =>  {
     var Y = y.map(s => {
+      var str = 'b';
+      if ((boardArray2[s +p])?.toUpperCase() ===boardArray2[s +p]) {
+        str = 'w';
+      }
       return (
       <div  key={s} draggable={false} className={'flex-auto select-none relative z-20  m-[1px] '+ (possibleMoves.includes(s+p) && "bg-[#6f69]")} onClick={()=> tempFn(s+p, boardArray2[s+p])} >
-        {boardArray2[s +p] !==" " && <img key={s+p} draggable={false} src={'./images/new_images/'+boardArray2[s +p]+'.png'} className='z-10 select-none top-[-1rem] absolute drag pointer-events-none '/>} 
+        {boardArray2[s +p] !==" " && <img key={s+p} draggable={false} src={'./images/new_images/'+str+boardArray2[s +p]+'.png'} className='z-10 select-none top-[-1rem] absolute drag pointer-events-none '/>} 
       </div>
       )
     })
