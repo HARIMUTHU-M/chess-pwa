@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Game } from "js-chess-engine";
-import "./App.css";
+import "../App.css";
 
 const game = new Game();
 
@@ -45,6 +45,7 @@ function App() {
         }
       }
     }
+
     setBoardArray2({ ...boardArray });
     keys = Object.keys(boardArray2);
     console.log(board);
@@ -57,26 +58,34 @@ function App() {
 
   const [possibleMoves, setPossibleMoves] = useState([]);
   const [fromPosition, setfromPosition] = useState("");
+  const [history, setHistory] = useState("");
 
-  const tempFn = (x, y) => {
+  const tempFn = (x, coin) => {
+    console.log(game.exportJson());
     if (possibleMoves.length > 0 && possibleMoves.includes(x)) {
       console.log("Possible Moves", possibleMoves);
       console.log(fromPosition + " " + x);
+
+      console.log(game.getHistory());
+
+      setHistory(history + "  " + fromPosition + "-" + x);
+
       game.move(fromPosition, x);
       console.log(game.exportJson().pieces);
       setCurrBoard();
       console.log("Done");
       setfromPosition("");
+
       game.aiMove(difficulty);
       setCurrBoard();
       setPossibleMoves([...[]]);
     } else if (possibleMoves.length > 0) {
       setPossibleMoves([...[]]);
     } else {
-      console.log(x + " " + y);
+      console.log(x + " " + coin);
       setPossibleMoves([...game.moves(x)]);
       setfromPosition(x);
-      console.log("Possible Moves", possibleMoves);
+      //   console.log("Possible Moves", possibleMoves);
     }
   };
 
@@ -92,7 +101,9 @@ function App() {
     >
       <div className="flex h-full">
         <div className="basis-1/4 left-bar"></div>
-        <div className="basis-1/2 w-fit px-20   -z-0 ">
+
+        {/* CHESSBOARD */}
+        <div className="basis-1/2 w-fit px-20 -z-0 ">
           <div
             className=" w-[34rem]  h-[37rem]  pl-[12%] pr-[13%] pt-[4rem] pb-[10.2rem] "
             style={{
@@ -111,7 +122,9 @@ function App() {
             </div>
           </div>
         </div>
+
         <div className="my-6  h-[60px] basis-1/2 right-bar">
+          {/* DIFFICULTY LEVEL */}
           <div
             className="flex flex-col justify-center items-start h-[40vh]"
             style={{
@@ -148,11 +161,24 @@ function App() {
               <div className="control_indicator"></div>
             </label>
           </div>
+
+          {/* MOVES PLAYED */}
+          <div
+            className="flex flex-col justify-center items-start h-[40vh] px-[90px] font-semibold text-lg text-white"
+            style={{
+              background:
+                'transparent url("./images/difficulty-level.png") no-repeat center center',
+              backgroundSize: "cover",
+            }}
+          >
+            {history}
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
 const Board = ({ boardArray2, tempFn, possibleMoves }) => {
   let x = [8, 7, 6, 5, 4, 3, 2, 1];
   let y = ["A", "B", "C", "D", "E", "F", "G", "H"];
@@ -193,4 +219,5 @@ const Board = ({ boardArray2, tempFn, possibleMoves }) => {
   });
   return <>{X}</>;
 };
+
 export default App;
