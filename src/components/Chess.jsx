@@ -5,12 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import WinModal from "./WinModal";
 import LoseModal from "./LoseModal";
+import StartModal from "./StartModal";
+import InstructionModal from "./InstructionModal"
 
 const game = new Game();
 
 function Chess({ difficulty }) {
   const [boardArray2, setBoardArray2] = useState({});
-  // const [difficulty, setDifficulty] = useState(0);
 
   // eslint-disable-next-line no-unused-vars
   let keys = Object.keys(boardArray2);
@@ -66,6 +67,8 @@ function Chess({ difficulty }) {
   const [isFinished, setIsFinished] = useState(false);
   const [checkmate, setCheckmate] = useState(false);
   const [currTurn, setCurrTurn] = useState("white");
+
+  const [startmodal, setStartmodal] = useState(1)
 
   useEffect(() => {
     setCurrBoard();
@@ -264,15 +267,16 @@ function Chess({ difficulty }) {
         </motion.div>
       )}
       <div className="flex h-full">
+
         {/* TESTING  */}
         <div className="basis-1/4 left-bar">
-          <button
+          {/* <button
             onClick={() => {
               modalOpen ? close() : open();
             }}
           >
             Click
-          </button>
+          </button> */}
         </div>
 
         {/* CHESSBOARD */}
@@ -369,6 +373,9 @@ function Chess({ difficulty }) {
         exitBeforeEnter={true}
         onExitComplete={() => null}
       >
+
+        { (startmodal === 1) && <StartModal setStartmodal={setStartmodal}/>}
+        { (startmodal === 2) && <InstructionModal setStartmodal={setStartmodal} />}
         {checkmate &&
           (currTurn === "black" ? (
             <WinModal modalopen={modalOpen} handleClose={close} />
