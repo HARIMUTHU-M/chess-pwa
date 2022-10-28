@@ -1,16 +1,26 @@
 import { useState, useEffect } from "react";
 import { Game } from "js-chess-engine";
 import "../App.css";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+
+import WinModal from "./WinModal";
+import LoseModal from "./LoseModal";
+
 const game = new Game();
 
-function App() {
+function Chess({ difficulty }) {
   const [boardArray2, setBoardArray2] = useState({});
-  const [difficulty, setDifficulty] = useState(0);
+  // const [difficulty, setDifficulty] = useState(0);
+
   // eslint-disable-next-line no-unused-vars
   let keys = Object.keys(boardArray2);
   let board = game.exportJson().pieces;
-  const [coord, setCoord] = useState({ x: 0, y: 0 })
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const open = () => setModalOpen(true);
+  const close = () => setModalOpen(false);
+
+  const [coord, setCoord] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState(true);
 
   function setCurrBoard() {
@@ -50,103 +60,138 @@ function App() {
 
     setBoardArray2({ ...boardArray });
     keys = Object.keys(boardArray2);
-    console.log(board);
+    // console.log(board);
   }
+
+  const [isFinished, setIsFinished] = useState(false);
+  const [checkmate, setCheckmate] = useState(false);
+  const [currTurn, setCurrTurn] = useState("white");
 
   useEffect(() => {
     setCurrBoard();
+    console.log("Check-Mate : " + checkmate + "\n Is-Finished : " + isFinished);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [possibleMoves, setPossibleMoves] = useState([]);
   const [fromPosition, setfromPosition] = useState("");
+
+  const [white, setWhite] = useState("");
+  const [black, setBlack] = useState("");
   const [history, setHistory] = useState("");
+
   const [aiMove, setAiMove] = useState(true);
   const [aiPosi, setAiPosi] = useState({});
   const [click, setClick] = useState(true);
   const [beginAnimation, setBeginAnimation] = useState(false);
+
   function delay(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
   }
+
+  const getLastMove = () => {
+    const A = game.getHistory();
+    const B = game.exportJson();
+    console.log(B);
+    // console.log("Moves made : " + A[A.length - 1].from + " " + A[A.length - 1].to );
+    if (A[A.length - 1].configuration.turn === "black")
+      setWhite(white + "\t" + A[A.length - 1].from + "-" + A[A.length - 1].to);
+    else
+      setBlack(black + "\t" + A[A.length - 1].from + "-" + A[A.length - 1].to);
+    // const check_Mate = B.checkMate;
+    // const is_Finished = B.isFinished;
+    // console.log(A[A.length - 1].configuration);
+    setIsFinished(B.isFinished);
+    setCheckmate(B.checkMate);
+    setCurrTurn(B.turn);
+  };
+
   useEffect(() => {
-    const f1 = async()=> {
-      if(game.getHistory().length === 0|| !click)
-      return;
+    const f1 = async () => {
+      if (game.getHistory().length === 0 || !click) return;
       setClick(false);
       game.aiMove(difficulty);
-      var from = game.getHistory()[game.getHistory().length-1]?.from;
-      var to =game.getHistory()[game.getHistory().length-1]?.to;
-      console.log(from,to)
-      var box1 = document.getElementById( from).getBoundingClientRect();
-      var box2 = document.getElementById( to).getBoundingClientRect();
+      var from = game.getHistory()[game.getHistory().length - 1]?.from;
+      var to = game.getHistory()[game.getHistory().length - 1]?.to;
+      console.log(from, to);
+      var box1 = document.getElementById(from).getBoundingClientRect();
+      var box2 = document.getElementById(to).getBoundingClientRect();
       setAiPosi({
-        x1:box1.left,
-        y1:box1.top,
-        x2:box1.left,
-        y2:box1.top,
-        from:from,
-        delay:0,
-      })
-      await delay(500)
+        x1: box1.left,
+        y1: box1.top,
+        x2: box1.left,
+        y2: box1.top,
+        from: from,
+        delay: 0,
+      });
+      await delay(500);
       setAiPosi({
-        x1:box1.left,
-        y1:box1.top,
-        x2:box2.left,
-        y2:box2.top,
-        from:from,
-        delay:0.5,
-      })
-      await delay(1300)
+        x1: box1.left,
+        y1: box1.top,
+        x2: box2.left,
+        y2: box2.top,
+        from: from,
+        delay: 0.5,
+      });
+      await delay(1300);
       setCurrBoard();
-      
+      getLastMove();
+
       setClick(true);
-      setAiPosi({})
-    }
-    f1()
+      setAiPosi({});
+    };
+    f1();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiMove]);
-  const tempFn = async(x, coin,str) => {
-    var box = document.getElementById( x).getBoundingClientRect();
+
+  const tempFn = async (x, coin, str) => {
+    var box = document.getElementById(x).getBoundingClientRect();
     // console.log(x.top,x.left);
-    if (!click){
+    if (!click) {
       return;
     }
-    
-    // if (str === 'w'&& possibleMoves > 0)
-    // console.log(game.exportJson());
+
     setClick(false);
     if (possibleMoves.length > 0 && possibleMoves.includes(x)) {
-      setBeginAnimation(!beginAnimation) ;
+      setBeginAnimation(!beginAnimation);
       console.log("Possible Moves", possibleMoves);
       // console.log(fromPosition + " " + x);
 
       console.log(game.getHistory());
 
       setHistory(history + "  " + fromPosition + "-" + x);
-      setCoord({ x: box.left, y: box.top })
+      setCoord({ x: box.left, y: box.top });
       await delay(1000);
       game.move(fromPosition, x);
       console.log(game.exportJson().pieces);
       setCurrBoard();
+      getLastMove();
       setfromPosition("");
 
-      
-      
-      console.log(game.getHistory())
+      setCurrTurn("black");
+      console.log(
+        "Before Ai -- Check-Mate : " +
+          checkmate +
+          "\nIs-Finished : " +
+          isFinished +
+          "\nCurrent Turn: " +
+          currTurn
+      );
+      // console.log(game.getHistory());
       setPossibleMoves([...[]]);
       setClick(true);
-      setAiMove(!aiMove)
-    } 
-    else if(  str==='w' && game.moves(x).length >0 ) {
-        setBeginAnimation(true);
-        setCoord({ x: box.left, y: box.top })
-        setfromPosition(x);
-        setPossibleMoves([...game.moves(x)]);
-        setClick(true);
-      }
-      //   console.log("Possible Moves", possibleMoves);
+      setAiMove(!aiMove);
+      // getLastMove();
+    } else if (str === "w" && game.moves(x).length > 0) {
+      setBeginAnimation(true);
+      setCoord({ x: box.left, y: box.top });
+      setfromPosition(x);
+      setPossibleMoves([...game.moves(x)]);
+      setClick(true);
+    }
+    //   console.log("Possible Moves", possibleMoves);
     setClick(true);
   };
-  
 
   return (
     <div
@@ -158,40 +203,77 @@ function App() {
         backgroundSize: "100% 100%",
       }}
     >
-      {aiPosi.x1 !== undefined &&    <motion.div
-        className='draggable absolute '
-        initial={{ opacity: 1, y: aiPosi.y1, x: aiPosi.x1 ,zIndex:100 }}
-        animate={{ opacity: 1, y: aiPosi.y2  , x: aiPosi.x2  , transition: { duration:  aiPosi.delay}, }}
-        
-      ><div className="bg-rd-500 w-12 h-12" >
-
-        <img
-            draggable={false}
-            src={"./images/new_images/" +(( boardArray2[aiPosi.from]?.toUpperCase() === boardArray2[aiPosi.from])?'w' :'b' )+ boardArray2[aiPosi.from] + ".png"}
-            className="z-[100] select-none top-[-1rem] absolute drag pointer-events-none "
-            alt=""
+      {aiPosi.x1 !== undefined && (
+        <motion.div
+          className="draggable absolute "
+          initial={{ opacity: 1, y: aiPosi.y1, x: aiPosi.x1, zIndex: 100 }}
+          animate={{
+            opacity: 1,
+            y: aiPosi.y2,
+            x: aiPosi.x2,
+            transition: { duration: aiPosi.delay },
+          }}
+        >
+          <div className="bg-rd-500 w-12 h-12">
+            <img
+              draggable={false}
+              src={
+                "./images/new_images/" +
+                (boardArray2[aiPosi.from]?.toUpperCase() ===
+                boardArray2[aiPosi.from]
+                  ? "w"
+                  : "b") +
+                boardArray2[aiPosi.from] +
+                ".png"
+              }
+              className="z-[100] select-none top-[-1rem] absolute drag pointer-events-none "
+              alt=""
             />
-            </div>
-        </motion.div>}
-{possibleMoves.length >0 &&    <motion.div
-
-        className='draggable absolute '
-        initial={{ opacity: 1, y: 0, x: 0 ,zIndex:100 }}
-        animate={{ opacity: 1, y: coord.y  , x: coord.x  , transition: { duration: beginAnimation? 0:0.5 }, }}
-        onClick={() => setIsVisible(!isVisible)}
-      ><div className="bg-rd-500 w-12 h-12" >
-
-        <img
-            key={fromPosition}
-            draggable={false}
-            src={"./images/new_images/" +(( boardArray2[fromPosition]?.toUpperCase() === boardArray2[fromPosition])?'w' :'b' )+ boardArray2[fromPosition] + ".png"}
-            className="z-[100] select-none top-[-1rem] absolute drag pointer-events-none "
-            alt=""
+          </div>
+        </motion.div>
+      )}
+      {possibleMoves.length > 0 && (
+        <motion.div
+          className="draggable absolute "
+          initial={{ opacity: 1, y: 0, x: 0, zIndex: 100 }}
+          animate={{
+            opacity: 1,
+            y: coord.y,
+            x: coord.x,
+            transition: { duration: beginAnimation ? 0 : 0.5 },
+          }}
+          onClick={() => setIsVisible(!isVisible)}
+        >
+          <div className="bg-rd-500 w-12 h-12">
+            <img
+              key={fromPosition}
+              draggable={false}
+              src={
+                "./images/new_images/" +
+                (boardArray2[fromPosition]?.toUpperCase() ===
+                boardArray2[fromPosition]
+                  ? "w"
+                  : "b") +
+                boardArray2[fromPosition] +
+                ".png"
+              }
+              className="z-[100] select-none top-[-1rem] absolute drag pointer-events-none "
+              alt=""
             />
-            </div>
-        </motion.div>}
-      <div className="flex h-full">  
-        <div className="basis-1/4 left-bar"></div>
+          </div>
+        </motion.div>
+      )}
+      <div className="flex h-full">
+        {/* TESTING  */}
+        <div className="basis-1/4 left-bar">
+          <button
+            onClick={() => {
+              modalOpen ? close() : open();
+            }}
+          >
+            Click
+          </button>
+        </div>
 
         {/* CHESSBOARD */}
         <div className="basis-1/2 w-fit px-20 -z-0 ">
@@ -219,10 +301,10 @@ function App() {
             </div>
           </div>
         </div>
-        
-        <div className="my-6  h-[60px] basis-1/2 right-bar">
+
+        <div className="my-6  h-[100vh] basis-1/2 right-bar">
           {/* DIFFICULTY LEVEL */}
-          <div
+          {/* <div
             className="flex flex-col justify-center items-start h-[40vh]"
             style={{
               background:
@@ -241,7 +323,6 @@ function App() {
             </label>
             <label className="control control-radio">
               Medium
-              
               <input
                 onChange={() => setDifficulty(1)}
                 type="radio"
@@ -258,26 +339,56 @@ function App() {
               />
               <div className="control_indicator"></div>
             </label>
-          </div>
+          </div> */}
 
           {/* MOVES PLAYED */}
           <div
-            className="flex flex-col justify-center items-start h-[40vh] px-[90px] font-semibold text-lg text-white"
+            className="flex flex-col justify-center items-center h-[40vh] px-[90px] font-semibold text-lg text-white"
             style={{
               background:
                 'transparent url("./images/difficulty-level.png") no-repeat center center',
               backgroundSize: "cover",
             }}
           >
-            {history}
+            <div className="grid grid-cols-2 gap-10">
+              <div className="">
+                <h1 className="font-semibold text-amber-300">White Moves:</h1>
+                {black}
+              </div>
+              <div className="">
+                <h1 className="font-semibold text-amber-300">Black Moves:</h1>
+                {white}
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      <AnimatePresence
+        initial={false}
+        exitBeforeEnter={true}
+        onExitComplete={() => null}
+      >
+        {checkmate &&
+          (currTurn === "black" ? (
+            <WinModal modalopen={modalOpen} handleClose={close} />
+          ) : (
+            <LoseModal modalopen={modalOpen} handleClose={close} />
+          ))}
+      </AnimatePresence>
     </div>
   );
 }
 
-const Board = ({ boardArray2, tempFn, possibleMoves,fromPosition,aiPosi,setBeginAnimation  ,setCoord}) => {
+const Board = ({
+  boardArray2,
+  tempFn,
+  possibleMoves,
+  fromPosition,
+  aiPosi,
+  setBeginAnimation,
+  setCoord,
+}) => {
   let x = [8, 7, 6, 5, 4, 3, 2, 1];
   let y = ["A", "B", "C", "D", "E", "F", "G", "H"];
   // console.log("board arr", boardArray2);
@@ -291,28 +402,26 @@ const Board = ({ boardArray2, tempFn, possibleMoves,fromPosition,aiPosi,setBegin
         <div
           key={s}
           draggable={false}
-          id={s+p}
+          id={s + p}
           className={
             "flex-auto select-none relative z-20  m-[1px] " +
             (possibleMoves.includes(s + p) && "bg-[#6f69]")
           }
-          onClick={(e) =>{ 
-            
-            tempFn(s + p, boardArray2[s + p],str)
-          } 
-        
-        }
-
+          onClick={(e) => {
+            tempFn(s + p, boardArray2[s + p], str);
+          }}
         >
-          {(boardArray2[s + p] !== " " && ((s+p )!==aiPosi.from) &&( fromPosition !== s + p || possibleMoves.length === 0 )) &&
-            <img
-              key={s + p}
-              draggable={false}
-              src={"./images/new_images/" + str + boardArray2[s + p] + ".png"}
-              className="z-10 select-none top-[-1rem] absolute drag pointer-events-none "
-              alt=""
-            />
-          }
+          {boardArray2[s + p] !== " " &&
+            s + p !== aiPosi.from &&
+            (fromPosition !== s + p || possibleMoves.length === 0) && (
+              <img
+                key={s + p}
+                draggable={false}
+                src={"./images/new_images/" + str + boardArray2[s + p] + ".png"}
+                className="z-10 select-none top-[-1rem] absolute drag pointer-events-none "
+                alt=""
+              />
+            )}
         </div>
       );
     });
@@ -325,4 +434,4 @@ const Board = ({ boardArray2, tempFn, possibleMoves,fromPosition,aiPosi,setBegin
   return <>{X}</>;
 };
 
-export default App;
+export default Chess;
