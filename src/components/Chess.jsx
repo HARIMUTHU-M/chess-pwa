@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import WinModal from "./WinModal";
 import LoseModal from "./LoseModal";
 import StartModal from "./StartModal";
-import InstructionModal from "./InstructionModal"
+import InstructionModal from "./InstructionModal";
 
 const game = new Game();
 
@@ -68,7 +68,7 @@ function Chess({ difficulty }) {
   const [checkmate, setCheckmate] = useState(false);
   const [currTurn, setCurrTurn] = useState("white");
 
-  const [startmodal, setStartmodal] = useState(1)
+  const [startmodal, setStartmodal] = useState(1);
 
   useEffect(() => {
     setCurrBoard();
@@ -347,19 +347,19 @@ function Chess({ difficulty }) {
 
           {/* MOVES PLAYED */}
           <div
-            className="flex flex-col justify-center items-center h-[40vh] px-[90px] font-semibold text-lg text-white"
+            className="h-[40vh] py-[30px] px-[90px] font-semibold text-lg text-white"
             style={{
               background:
                 'transparent url("./images/difficulty-level.png") no-repeat center center',
               backgroundSize: "cover",
             }}
           >
-            <div className="grid grid-cols-2 gap-10">
-              <div className="">
+            <div className="my-6 h-[140px] grid grid-cols-2 gap-10 overflow-x-hidden">
+              <div>
                 <h1 className="font-semibold text-amber-300">White Moves:</h1>
                 {black}
               </div>
-              <div className="">
+              <div>
                 <h1 className="font-semibold text-amber-300">Black Moves:</h1>
                 {white}
               </div>
@@ -373,9 +373,8 @@ function Chess({ difficulty }) {
         exitBeforeEnter={true}
         onExitComplete={() => null}
       >
-
-        { (startmodal === 1) && <StartModal setStartmodal={setStartmodal}/>}
-        { (startmodal === 2) && <InstructionModal setStartmodal={setStartmodal} />}
+        {startmodal === 1 && <StartModal setStartmodal={setStartmodal} />}
+        {startmodal === 2 && <InstructionModal setStartmodal={setStartmodal} />}
         {checkmate &&
           (currTurn === "black" ? (
             <WinModal modalopen={modalOpen} handleClose={close} />
