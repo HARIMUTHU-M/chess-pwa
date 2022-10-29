@@ -8,7 +8,7 @@ import LoseModal from "./LoseModal";
 import StartModal from "./StartModal";
 import InstructionModal from "./InstructionModal";
 
-const game = new Game();
+let game = new Game();
 
 function Chess({ difficulty }) {
   const [boardArray2, setBoardArray2] = useState({});
@@ -107,13 +107,18 @@ function Chess({ difficulty }) {
     setIsFinished(B.isFinished);
     setCheckmate(B.checkMate);
     setCurrTurn(B.turn);
+    if(B.checkMate) {
+      setBlack("");
+      setWhite("");
+      game=new Game();
+    }
   };
 
   useEffect(() => {
     const f1 = async () => {
       if (game.getHistory().length === 0 || !click) return;
       setClick(false);
-      game.aiMove(difficulty);
+      game.aiMove(3);
       var from = game.getHistory()[game.getHistory().length - 1]?.from;
       var to = game.getHistory()[game.getHistory().length - 1]?.to;
       console.log(from, to);
