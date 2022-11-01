@@ -1,11 +1,30 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Modal from "./Modal";
+import DifficultyModal from "./DifficultyModal";
+import PlayTypeModal from "./PlayTypeModal";
+import RoomNumModal from "./RoomNumModal";
+import { useNavigate } from "react-router-dom";
 
-const Home = ({ setDifficulty }) => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const open = () => setModalOpen(true);
-  const close = () => setModalOpen(false);
+const Home = ({ setDifficulty, setRoomno }) => {
+
+  const navigate = useNavigate()
+
+
+  const [openDiffModal, setOpenDiffModal] = useState(false);
+  const openD = () => setOpenDiffModal(true);
+  const closeD = () => setOpenDiffModal(false);
+
+  const [openPlayType, setOpenPlayType] = useState(false);
+  const openP = () => setOpenPlayType(true);
+  const closeP = () => setOpenPlayType(false);
+
+  const [openRoomModal, setOpenRoomModal] = useState(false);
+  const openR = () => setOpenRoomModal(true);
+  const closeR = () => {
+    setOpenRoomModal(false);
+    // console.log(roomno);
+    navigate("/")
+  };
 
   return (
     <div
@@ -17,7 +36,7 @@ const Home = ({ setDifficulty }) => {
       <motion.button
         // drag
         onClick={() => {
-          modalOpen ? close() : open();
+          openPlayType ? closeP() : openP();
         }}
         className="relative top-[25%]"
         whileHover={{ scale: 1.1 }}
@@ -34,11 +53,24 @@ const Home = ({ setDifficulty }) => {
         exitBeforeEnter={true}
         onExitComplete={() => null}
       >
-        {modalOpen && (
-          <Modal
-            modalopen={modalOpen}
-            handleClose={close}
-            setDifficulty={setDifficulty}
+        {openPlayType && (
+          <PlayTypeModal
+            handleClose={closeP}
+            openD={openD}
+            closeD={closeD}
+            openR={openR}
+          />
+        )}
+
+        {openDiffModal && (
+          <DifficultyModal handleClose={closeD} setDifficulty={setDifficulty} />
+        )}
+
+        {openRoomModal && (
+          <RoomNumModal
+            handleClose={closeR}
+            setRoomno={setRoomno}
+            closeP={closeP}
           />
         )}
       </AnimatePresence>
