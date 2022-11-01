@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Game } from "js-chess-engine";
 import "../App.css";
+import { motion, AnimatePresence } from "framer-motion";
 import io from "socket.io-client";
 
 import WinModal from "./WinModal";
@@ -10,20 +11,35 @@ import LoseModal from "./LoseModal";
 const socket = io("http://localhost:3001/");
 
 function ChessMultiplayer({ roomno }) {
+
   const [game, setGame] = useState(new Game());
-  const [room, setRoom] = useState(roomno);
+
   const [boardArray2, setBoardArray2] = useState({});
-  const [difficulty, setDifficulty] = useState(0);
+
   const [counter, setCounter] = useState(0);
   const [counter2, setCounter2] = useState(0);
   const [player, setPlayer] = useState("");
+
+
+  
+  const [white, setWhite] = useState("");
+  const [black, setBlack] = useState("");
+  // const [history, setHistory] = useState("");
+  
+  const [isFinished, setIsFinished] = useState(false);
+  const [checkmate, setCheckmate] = useState(false);
+  const [currTurn, setCurrTurn] = useState("white");
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const open = () => setModalOpen(true);
+  const close = () => setModalOpen(false);
 
   const sendMessage = async () => {
     const currBoardArray = boardArray2;
     console.log("Send message array");
     console.log(currBoardArray);
     const data = {
-      room: room,
+      room: roomno,
       game: await game,
       boardArray2: currBoardArray,
     };
@@ -31,10 +47,11 @@ function ChessMultiplayer({ roomno }) {
   };
 
   const joinRoom = () => {
-    if (room !== "") {
-      socket.emit("join_room", room);
+    if (roomno !== "") {
+      socket.emit("join_room", roomno);
     }
   };
+
   const forceUpdate = useCallback(
     (boardArray) => setBoardArray2({ ...boardArray }),
     []
@@ -81,6 +98,26 @@ function ChessMultiplayer({ roomno }) {
     forceUpdate(boardArray);
   }
 
+  const getLastMove = () => {
+    const A = game.getHistory();
+    const B = game.exportJson();
+    console.log(B);
+   if (A[A.length - 1].configuration.turn === "black")
+      setWhite(white + "\t" + A[A.length - 1].from + "-" + A[A.length - 1].to);
+    else
+      setBlack(black + "\t" + A[A.length - 1].from + "-" + A[A.length - 1].to);
+
+    setIsFinished(B.isFinished);
+    setCheckmate(B.checkMate);
+    setCurrTurn(B.turn);
+    if(B.checkMate) {
+      setBlack("");
+      setWhite("");
+      setGame(new Game());
+    }
+  };
+
+
   const [possibleMoves, setPossibleMoves] = useState([]);
   const [fromPosition, setfromPosition] = useState("");
 
@@ -91,6 +128,9 @@ function ChessMultiplayer({ roomno }) {
       game.move(fromPosition, x);
       boardArray2[x] = boardArray2[fromPosition];
       boardArray2[fromPosition] = " ";
+
+      // await setCurrBoard();
+      getLastMove();
       setfromPosition("");
       setPossibleMoves([...[]]);
     } else if (possibleMoves.length > 0) {
@@ -108,6 +148,7 @@ function ChessMultiplayer({ roomno }) {
   useEffect(() => {
     joinRoom();
     // setCurrBoard();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -115,6 +156,7 @@ function ChessMultiplayer({ roomno }) {
       await setCurrBoard();
     }
     temp();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [counter2]);
 
   useEffect(() => {
@@ -123,6 +165,7 @@ function ChessMultiplayer({ roomno }) {
       await sendMessage();
     }
     temp();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [counter]);
 
   useEffect(() => {
@@ -139,6 +182,7 @@ function ChessMultiplayer({ roomno }) {
       setPlayer(data.player);
       console.log(data.player);
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket]);
 
   return (
@@ -168,52 +212,52 @@ function ChessMultiplayer({ roomno }) {
                 boardArray2={boardArray2}
                 possibleMoves={possibleMoves}
                 tempFn={tempFn}
-              ></Board>
+              />
             </div>
           </div>
         </div>
         <div className="my-6  h-[60px] basis-1/2 right-bar">
-          {/* <div
-            className="flex flex-col justify-center items-start h-[40vh]"
+        <div
+            className="h-[40vh] py-[30px] px-[90px] font-semibold text-lg text-white"
             style={{
               background:
                 'transparent url("./images/difficulty-level.png") no-repeat center center',
               backgroundSize: "cover",
             }}
           >
-            <label className="control control-radio">
-              Easy
-              <input
-                onChange={() => setDifficulty(0)}
-                type="radio"
-                name="radio"
-              />
-              <div className="control_indicator"></div>
-            </label>
-            <label className="control control-radio">
-              Medium
-              <input
-                onChange={() => setDifficulty(1)}
-                type="radio"
-                name="radio"
-              />
-              <div className="control_indicator"></div>
-            </label>
-            <label className="control control-radio">
-              Hard
-              <input
-                onChange={() => setDifficulty(2)}
-                type="radio"
-                name="radio"
-              />
-              <div className="control_indicator"></div>
-            </label>
-          </div> */}
+            <div className="my-6 h-[140px] grid grid-cols-2 gap-10 overflow-x-hidden">
+              <div>
+                <h1 className="font-semibold text-amber-300">White Moves:</h1>
+                {black}
+              </div>
+              <div>
+                <h1 className="font-semibold text-amber-300">Black Moves:</h1>
+                {white}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      <AnimatePresence
+        initial={false}
+        exitBeforeEnter={true}
+        onExitComplete={() => null}
+      >
+        {/* {startmodal === 1 && <StartModal setStartmodal={setStartmodal} />}
+        {startmodal === 2 && <InstructionModal setStartmodal={setStartmodal} />} */}
+        {checkmate &&
+          (currTurn === "black" ? (
+            <WinModal modalopen={modalOpen} handleClose={close} />
+          ) : (
+            <LoseModal modalopen={modalOpen} handleClose={close} />
+          ))}
+      </AnimatePresence>
+
     </div>
   );
 }
+
 const Board = ({ boardArray2, tempFn, possibleMoves }) => {
   let x = [8, 7, 6, 5, 4, 3, 2, 1];
   let y = ["A", "B", "C", "D", "E", "F", "G", "H"];
@@ -235,6 +279,7 @@ const Board = ({ boardArray2, tempFn, possibleMoves }) => {
         >
           {boardArray2[s + p] !== " " && (
             <img
+              alt=""
               key={s + p}
               draggable={false}
               src={"./images/new_images/" + str + boardArray2[s + p] + ".png"}
@@ -252,4 +297,5 @@ const Board = ({ boardArray2, tempFn, possibleMoves }) => {
   });
   return <>{X}</>;
 };
+
 export default ChessMultiplayer;
