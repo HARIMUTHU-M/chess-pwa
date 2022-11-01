@@ -16,6 +16,8 @@ function ChessMultiplayer({ roomno }) {
   const [difficulty, setDifficulty] = useState(0);
   const [counter, setCounter] = useState(0);
   const [counter2, setCounter2] = useState(0);
+  const [player, setPlayer] = useState("");
+
   const sendMessage = async () => {
     const currBoardArray = boardArray2;
     console.log("Send message array");
@@ -83,17 +85,13 @@ function ChessMultiplayer({ roomno }) {
   const [fromPosition, setfromPosition] = useState("");
 
   const tempFn = async (x, y) => {
+    console.log("Player is "+game.board.configuration.turn);
+    if(player==game.board.configuration.turn){
     if (possibleMoves.length > 0 && possibleMoves.includes(x)) {
       game.move(fromPosition, x);
       boardArray2[x] = boardArray2[fromPosition];
       boardArray2[fromPosition] = " ";
-
-      // await setCurrBoard();
       setfromPosition("");
-      // game.aiMove(difficulty);
-      // sendMessage(boardArray2);
-      // setCurrBoard();
-      // sendMessage();
       setPossibleMoves([...[]]);
     } else if (possibleMoves.length > 0) {
       setPossibleMoves([...[]]);
@@ -104,6 +102,7 @@ function ChessMultiplayer({ roomno }) {
     setCounter(counter + 1);
     // setCounter2(counter2 + 1);
     // await setCurrBoard();
+    }
   };
 
   useEffect(() => {
@@ -116,7 +115,6 @@ function ChessMultiplayer({ roomno }) {
       await setCurrBoard();
     }
     temp();
-    // delay(500);
   }, [counter2]);
 
   useEffect(() => {
@@ -136,6 +134,11 @@ function ChessMultiplayer({ roomno }) {
       console.log(data);
       console.log(boardArray2);
     });
+    
+    socket.on("player", async (data)=>{
+      setPlayer(data.player);
+      console.log(data.player);
+    })
   }, [socket]);
 
   return (
