@@ -96,14 +96,11 @@ function Chess({ difficulty }) {
     const A = game.getHistory();
     const B = game.exportJson();
     console.log(B);
-    // console.log("Moves made : " + A[A.length - 1].from + " " + A[A.length - 1].to );
-    if (A[A.length - 1].configuration.turn === "black")
+   if (A[A.length - 1].configuration.turn === "black")
       setWhite(white + "\t" + A[A.length - 1].from + "-" + A[A.length - 1].to);
     else
       setBlack(black + "\t" + A[A.length - 1].from + "-" + A[A.length - 1].to);
-    // const check_Mate = B.checkMate;
-    // const is_Finished = B.isFinished;
-    // console.log(A[A.length - 1].configuration);
+
     setIsFinished(B.isFinished);
     setCheckmate(B.checkMate);
     setCurrTurn(B.turn);
@@ -312,43 +309,6 @@ function Chess({ difficulty }) {
         </div>
 
         <div className="my-6  h-[100vh] basis-1/2 right-bar">
-          {/* DIFFICULTY LEVEL */}
-          {/* <div
-            className="flex flex-col justify-center items-start h-[40vh]"
-            style={{
-              background:
-                'transparent url("./images/difficulty-level.png") no-repeat center center',
-              backgroundSize: "cover",
-            }}
-          >
-            <label className="control control-radio">
-              Easy
-              <input
-                onChange={() => setDifficulty(0)}
-                type="radio"
-                name="radio"
-              />
-              <div className="control_indicator"></div>
-            </label>
-            <label className="control control-radio">
-              Medium
-              <input
-                onChange={() => setDifficulty(1)}
-                type="radio"
-                name="radio"
-              />
-              <div className="control_indicator"></div>
-            </label>
-            <label className="control control-radio">
-              Hard
-              <input
-                onChange={() => setDifficulty(2)}
-                type="radio"
-                name="radio"
-              />
-              <div className="control_indicator"></div>
-            </label>
-          </div> */}
 
           {/* MOVES PLAYED */}
           <div
