@@ -11,7 +11,6 @@ import LoseModal from "./LoseModal";
 const socket = io("http://localhost:3001/");
 
 function ChessMultiplayer({ roomno }) {
-
   const [game, setGame] = useState(new Game());
 
   const [boardArray2, setBoardArray2] = useState({});
@@ -20,18 +19,16 @@ function ChessMultiplayer({ roomno }) {
   const [counter2, setCounter2] = useState(0);
   const [player, setPlayer] = useState("");
 
-
-  
   const [white, setWhite] = useState("");
   const [black, setBlack] = useState("");
   // const [history, setHistory] = useState("");
-  
+
   const [isFinished, setIsFinished] = useState(false);
   const [checkmate, setCheckmate] = useState(false);
   const [currTurn, setCurrTurn] = useState("white");
 
   const [modalOpen, setModalOpen] = useState(false);
-  const open = () => setModalOpen(true);
+  // const open = () => setModalOpen(true);
   const close = () => setModalOpen(false);
 
   const sendMessage = async () => {
@@ -42,6 +39,10 @@ function ChessMultiplayer({ roomno }) {
       room: roomno,
       game: await game,
       boardArray2: currBoardArray,
+      white: white,
+      black: black,
+      isFinished: isFinished,
+      currTurn: currTurn,
     };
     socket.emit("send_message", data);
   };
@@ -102,7 +103,7 @@ function ChessMultiplayer({ roomno }) {
     const A = game.getHistory();
     const B = game.exportJson();
     console.log(B);
-   if (A[A.length - 1].configuration.turn === "black")
+    if (A[A.length - 1].configuration.turn === "black")
       setWhite(white + "\t" + A[A.length - 1].from + "-" + A[A.length - 1].to);
     else
       setBlack(black + "\t" + A[A.length - 1].from + "-" + A[A.length - 1].to);
@@ -110,45 +111,44 @@ function ChessMultiplayer({ roomno }) {
     setIsFinished(B.isFinished);
     setCheckmate(B.checkMate);
     setCurrTurn(B.turn);
-    if(B.checkMate) {
+    if (B.checkMate) {
       setBlack("");
       setWhite("");
       setGame(new Game());
     }
   };
 
-
   const [possibleMoves, setPossibleMoves] = useState([]);
   const [fromPosition, setfromPosition] = useState("");
 
   const tempFn = async (x, y) => {
-    console.log("Player is "+game.board.configuration.turn);
-    if(player==game.board.configuration.turn){
-    if (possibleMoves.length > 0 && possibleMoves.includes(x)) {
-      game.move(fromPosition, x);
-      boardArray2[x] = boardArray2[fromPosition];
-      boardArray2[fromPosition] = " ";
+    console.log("Player is " + game.board.configuration.turn);
+    if (player === game.board.configuration.turn) {
+      if (possibleMoves.length > 0 && possibleMoves.includes(x)) {
+        game.move(fromPosition, x);
+        boardArray2[x] = boardArray2[fromPosition];
+        boardArray2[fromPosition] = " ";
 
+        // await setCurrBoard();
+        await getLastMove();
+        setfromPosition("");
+        setPossibleMoves([...[]]);
+      } else if (possibleMoves.length > 0) {
+        setPossibleMoves([...[]]);
+      } else {
+        setPossibleMoves([...game.moves(x)]);
+        setfromPosition(x);
+      }
+      setCounter(counter + 1);
+      // setCounter2(counter2 + 1);
       // await setCurrBoard();
-      getLastMove();
-      setfromPosition("");
-      setPossibleMoves([...[]]);
-    } else if (possibleMoves.length > 0) {
-      setPossibleMoves([...[]]);
-    } else {
-      setPossibleMoves([...game.moves(x)]);
-      setfromPosition(x);
-    }
-    setCounter(counter + 1);
-    // setCounter2(counter2 + 1);
-    // await setCurrBoard();
     }
   };
 
   useEffect(() => {
     joinRoom();
     // setCurrBoard();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -172,16 +172,17 @@ function ChessMultiplayer({ roomno }) {
     socket.on("receive_board", async (data) => {
       setGame(await new Game(data.game.board.configuration));
       setBoardArray2(await data.boardArray2);
+      setWhite(await data.white);
+      setBlack(await data.black);
+      setCurrTurn(await data.currTurn);
+      setIsFinished(await data.isFinished);
       setCounter2(counter2 + 1);
-      console.log("Received message");
-      console.log(data);
-      console.log(boardArray2);
     });
-    
-    socket.on("player", async (data)=>{
+
+    socket.on("player", async (data) => {
       setPlayer(data.player);
       console.log(data.player);
-    })
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket]);
 
@@ -217,7 +218,7 @@ function ChessMultiplayer({ roomno }) {
           </div>
         </div>
         <div className="my-6  h-[60px] basis-1/2 right-bar">
-        <div
+          <div
             className="h-[40vh] py-[30px] px-[90px] font-semibold text-lg text-white"
             style={{
               background:
@@ -246,14 +247,13 @@ function ChessMultiplayer({ roomno }) {
       >
         {/* {startmodal === 1 && <StartModal setStartmodal={setStartmodal} />}
         {startmodal === 2 && <InstructionModal setStartmodal={setStartmodal} />} */}
-        {checkmate &&
-          (currTurn === "black" ? (
+        {isFinished &&
+          (currTurn !== player ? (
             <WinModal modalopen={modalOpen} handleClose={close} />
           ) : (
             <LoseModal modalopen={modalOpen} handleClose={close} />
           ))}
       </AnimatePresence>
-
     </div>
   );
 }

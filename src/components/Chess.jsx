@@ -95,7 +95,6 @@ function Chess({ difficulty }) {
   const getLastMove = () => {
     const A = game.getHistory();
     const B = game.exportJson();
-    console.log(B);
    if (A[A.length - 1].configuration.turn === "black")
       setWhite(white + "\t" + A[A.length - 1].from + "-" + A[A.length - 1].to);
     else
