@@ -9,7 +9,7 @@ const ChessMultiplayer = lazy(() => import("./components/ChessMultiplayer"));
 
 const App = () => {
 
-  const [difficulty, setDifficulty] = useState(2)
+  const [difficulty, setDifficulty] = useState(1)
   
   const [roomno, setRoomno] = useState();
 

@@ -114,7 +114,7 @@ function Chess({ difficulty }) {
     const f1 = async () => {
       if (game.getHistory().length === 0 || !click) return;
       setClick(false);
-      game.aiMove(3);
+      game.aiMove(difficulty);
       var from = game.getHistory()[game.getHistory().length - 1]?.from;
       var to = game.getHistory()[game.getHistory().length - 1]?.to;
       console.log(from, to);
