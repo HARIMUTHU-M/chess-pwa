@@ -31,20 +31,24 @@ function ChessMultiplayer({ roomno }) {
   // const open = () => setModalOpen(true);
   const close = () => setModalOpen(false);
 
+  const [isFull, setIsFull] = useState(false);
+
   const sendMessage = async () => {
-    const currBoardArray = boardArray2;
-    console.log("Send message array");
-    console.log(currBoardArray);
-    const data = {
-      room: roomno,
-      game: await game,
-      boardArray2: currBoardArray,
-      white: white,
-      black: black,
-      isFinished: isFinished,
-      currTurn: currTurn,
-    };
-    socket.emit("send_message", data);
+    if (!isFull) {
+      const currBoardArray = boardArray2;
+      console.log("Send message array");
+      console.log(currBoardArray);
+      const data = {
+        room: roomno,
+        game: await game,
+        boardArray2: currBoardArray,
+        white: white,
+        black: black,
+        isFinished: isFinished,
+        currTurn: currTurn,
+      };
+      socket.emit("send_message", data);
+    }
   };
 
   const joinRoom = () => {
@@ -182,6 +186,12 @@ function ChessMultiplayer({ roomno }) {
     socket.on("player", async (data) => {
       setPlayer(data.player);
       console.log(data.player);
+    });
+
+    socket.on("room_full", async (data) => {
+      setIsFull(true);
+      // setRoomno("");
+      console.log("Room full in client");
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket]);
