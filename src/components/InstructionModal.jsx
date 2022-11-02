@@ -1,33 +1,34 @@
 import { motion } from "framer-motion";
 import Backdrop from "./Backdrop";
-import { useNavigate } from "react-router-dom";
 import "../App.css";
 
 const dropIn = {
   hidden: {
-    y: "-100vh",
+    x: "100vw",
     opacity: 0,
   },
   visible: {
-    y: 0,
+    x: 0,
     opacity: 1,
     transition: {
-      duration: 0.1,
+      delay: 0.5,
+      duration: 1,
       type: "spring",
       damping: 25,
       stiffness: 500,
     },
   },
   exit: {
-    y: "100vh",
+    x: "-100vw",
     opacity: 0,
+    transition: {
+      duration: 1,
+    },
   },
 };
 
-const WinModal = ({ handleClose }) => {
+const InstructionModal = ({ setStartmodal, handleClose }) => {
   
-  const navigate = useNavigate();
-
   return (
     <Backdrop onClick={handleClose}>
       <motion.div
@@ -40,13 +41,18 @@ const WinModal = ({ handleClose }) => {
         exit="exit"
       >
         <div className="flex flex-col items-center justify-center relative top-[4rem]">
-          <p className="font-bold text-4xl py-4 text-white">Game over</p>
+          <p className="font-bold text-4xl py-4 text-white">Instructions:</p>
 
-          <p className="font-bold text-2xl py-4 text-orange-300"> You Win!!!</p>
+          <p className="font-bold text-2xl pt-4 text-orange-300">
+            Lead the troops by abiding the Chess Rules
+          </p>
+          <p className="font-bold text-2xl py-5 text-orange-300 hover:scale-105 hover:font-black animate-bounce">
+            {/* Please lead us to retain our territory back */}Good Luck!!
+          </p>
 
           <motion.button
             onClick={() => {
-              navigate("/");
+              setStartmodal(0);
             }}
             className="relative top-[5rem]"
             whileHover={{ scale: 1.1 }}
@@ -54,17 +60,17 @@ const WinModal = ({ handleClose }) => {
           >
             <img src={"./images/5-02.png"} alt="tag" width={180} height={170} />
             <p className="z-21 relative bottom-[3.6rem] font-black text-[26px]">
-              New Game
+              Let's go
             </p>
           </motion.button>
         </div>
 
-        <div className="z-22 absolute right-[650px] top-[200px] h-[350px] w-[400px]">
-          <img src={"./images/characters/Knight-Warrior.png"} alt="tag" />
+        <div className="z-22 absolute right-[670px] top-[250px] h-[200px] w-[290px]">
+          <img src={"./images/characters/Hand-Cannon.png"} alt="tag" />
         </div>
       </motion.div>
     </Backdrop>
   );
 };
 
-export default WinModal;
+export default InstructionModal;

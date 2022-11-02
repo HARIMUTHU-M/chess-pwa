@@ -24,13 +24,12 @@ const dropIn = {
   },
 };
 
-const Modal = ({ handleClose, setDifficulty }) => {
+const DifficultyModal = ({ handleClose, setDifficulty }) => {
   const navigate = useNavigate();
 
   return (
     <Backdrop onClick={handleClose}>
       <motion.div
-        // drag
         onClick={(e) => e.stopPropagation()}
         className="modal p-[100px] flex items-center justify-center z-20"
         variants={dropIn}
@@ -96,4 +95,4 @@ const Modal = ({ handleClose, setDifficulty }) => {
   );
 };
 
-export default Modal;
+export default DifficultyModal;

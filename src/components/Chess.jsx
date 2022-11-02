@@ -5,12 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import WinModal from "./WinModal";
 import LoseModal from "./LoseModal";
+import StartModal from "./StartModal";
+import InstructionModal from "./InstructionModal";
 
-const game = new Game();
+let game = new Game();
 
 function Chess({ difficulty }) {
   const [boardArray2, setBoardArray2] = useState({});
-  // const [difficulty, setDifficulty] = useState(0);
 
   // eslint-disable-next-line no-unused-vars
   let keys = Object.keys(boardArray2);
@@ -67,6 +68,8 @@ function Chess({ difficulty }) {
   const [checkmate, setCheckmate] = useState(false);
   const [currTurn, setCurrTurn] = useState("white");
 
+  const [startmodal, setStartmodal] = useState(1);
+
   useEffect(() => {
     setCurrBoard();
     console.log("Check-Mate : " + checkmate + "\n Is-Finished : " + isFinished);
@@ -92,25 +95,26 @@ function Chess({ difficulty }) {
   const getLastMove = () => {
     const A = game.getHistory();
     const B = game.exportJson();
-    console.log(B);
-    // console.log("Moves made : " + A[A.length - 1].from + " " + A[A.length - 1].to );
-    if (A[A.length - 1].configuration.turn === "black")
+   if (A[A.length - 1].configuration.turn === "black")
       setWhite(white + "\t" + A[A.length - 1].from + "-" + A[A.length - 1].to);
     else
       setBlack(black + "\t" + A[A.length - 1].from + "-" + A[A.length - 1].to);
-    // const check_Mate = B.checkMate;
-    // const is_Finished = B.isFinished;
-    // console.log(A[A.length - 1].configuration);
+
     setIsFinished(B.isFinished);
     setCheckmate(B.checkMate);
     setCurrTurn(B.turn);
+    if(B.checkMate) {
+      setBlack("");
+      setWhite("");
+      game=new Game();
+    }
   };
 
   useEffect(() => {
     const f1 = async () => {
       if (game.getHistory().length === 0 || !click) return;
       setClick(false);
-      game.aiMove(difficulty);
+      game.aiMove(3);
       var from = game.getHistory()[game.getHistory().length - 1]?.from;
       var to = game.getHistory()[game.getHistory().length - 1]?.to;
       console.log(from, to);
@@ -264,15 +268,16 @@ function Chess({ difficulty }) {
         </motion.div>
       )}
       <div className="flex h-full">
+
         {/* TESTING  */}
         <div className="basis-1/4 left-bar">
-          <button
+          {/* <button
             onClick={() => {
               modalOpen ? close() : open();
             }}
           >
             Click
-          </button>
+          </button> */}
         </div>
 
         {/* CHESSBOARD */}
@@ -303,59 +308,22 @@ function Chess({ difficulty }) {
         </div>
 
         <div className="my-6  h-[100vh] basis-1/2 right-bar">
-          {/* DIFFICULTY LEVEL */}
-          {/* <div
-            className="flex flex-col justify-center items-start h-[40vh]"
-            style={{
-              background:
-                'transparent url("./images/difficulty-level.png") no-repeat center center',
-              backgroundSize: "cover",
-            }}
-          >
-            <label className="control control-radio">
-              Easy
-              <input
-                onChange={() => setDifficulty(0)}
-                type="radio"
-                name="radio"
-              />
-              <div className="control_indicator"></div>
-            </label>
-            <label className="control control-radio">
-              Medium
-              <input
-                onChange={() => setDifficulty(1)}
-                type="radio"
-                name="radio"
-              />
-              <div className="control_indicator"></div>
-            </label>
-            <label className="control control-radio">
-              Hard
-              <input
-                onChange={() => setDifficulty(2)}
-                type="radio"
-                name="radio"
-              />
-              <div className="control_indicator"></div>
-            </label>
-          </div> */}
 
           {/* MOVES PLAYED */}
           <div
-            className="flex flex-col justify-center items-center h-[40vh] px-[90px] font-semibold text-lg text-white"
+            className="h-[40vh] py-[30px] px-[90px] font-semibold text-lg text-white"
             style={{
               background:
                 'transparent url("./images/difficulty-level.png") no-repeat center center',
               backgroundSize: "cover",
             }}
           >
-            <div className="grid grid-cols-2 gap-10">
-              <div className="">
+            <div className="my-6 h-[140px] grid grid-cols-2 gap-10 overflow-x-hidden">
+              <div>
                 <h1 className="font-semibold text-amber-300">White Moves:</h1>
                 {black}
               </div>
-              <div className="">
+              <div>
                 <h1 className="font-semibold text-amber-300">Black Moves:</h1>
                 {white}
               </div>
@@ -369,6 +337,8 @@ function Chess({ difficulty }) {
         exitBeforeEnter={true}
         onExitComplete={() => null}
       >
+        {startmodal === 1 && <StartModal setStartmodal={setStartmodal} />}
+        {startmodal === 2 && <InstructionModal setStartmodal={setStartmodal} />}
         {checkmate &&
           (currTurn === "black" ? (
             <WinModal modalopen={modalOpen} handleClose={close} />
