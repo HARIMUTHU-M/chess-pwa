@@ -8,7 +8,7 @@ import WinModal from "./WinModal";
 import LoseModal from "./LoseModal";
 // const game1 = new Game();
 
-const socket = io("https://online-chess-back-end.herokuapp.com/");
+const socket = io("https://chess-backend.onrender.com/");
 
 function ChessMultiplayer({ roomno }) {
   const [game, setGame] = useState(new Game());
