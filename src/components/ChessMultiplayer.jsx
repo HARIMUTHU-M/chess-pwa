@@ -3,6 +3,7 @@ import { Game } from "js-chess-engine";
 import "../App.css";
 import { motion, AnimatePresence } from "framer-motion";
 import io from "socket.io-client";
+import { useNavigate } from "react-router-dom";
 
 import WinModal from "./WinModal";
 import LoseModal from "./LoseModal";
@@ -33,11 +34,10 @@ function ChessMultiplayer({ roomno }) {
   const [modalOpen, setModalOpen] = useState(false);
   // const open = () => setModalOpen(true);
   const close = () => setModalOpen(false);
-
-  const [isFull, setIsFull] = useState(false);
+  const navigate = useNavigate ();
 
   const sendMessage = async () => {
-    if (!isFull) {
+    if (player!=="") {
       const currBoardArray = boardArray2;
       console.log("Send message array");
       console.log(currBoardArray);
@@ -153,8 +153,8 @@ function ChessMultiplayer({ roomno }) {
   };
 
   useEffect(() => {
-    joinRoom();
-    // setCurrBoard();
+    if(roomno==="" || roomno==null) navigate("/"); 
+    else joinRoom();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -178,6 +178,7 @@ function ChessMultiplayer({ roomno }) {
   useEffect(()=>{
     if(player!=="")
     moveSound.play();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[currTurn])
 
   useEffect(() => {
@@ -198,9 +199,8 @@ function ChessMultiplayer({ roomno }) {
     });
 
     socket.on("room_full", async (data) => {
-      setIsFull(true);
-      // setRoomno("");
-      console.log("Room full in client");
+      console.log("Room full");
+      navigate('/');
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket]);
