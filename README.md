@@ -1,3 +1,4 @@
-### chess-pwa
+# `Online Chess Web App`
 
-Demo - https://comforting-tapioca-f89e05.netlify.app/
+### Deployed on Netlify
+https://comforting-tapioca-f89e05.netlify.app/
